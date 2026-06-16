@@ -1,12 +1,25 @@
+import brasao from '@/assets/PMBA.png'
+
 export function Header() {
   return (
-    <header className="h-14 bg-white border-b border-gray-200 px-6 flex items-center justify-between">
-      <p className="text-sm text-gray-500">Sistema de Registro de Ocorrências</p>
-      <div className="flex items-center gap-3">
-        <span className="text-xs bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded">
-          SD
-        </span>
-        <span className="text-sm font-medium text-gray-700">Sd. Pedro Aruana</span>
+    <header className="bg-black text-white">
+      <div className="flex items-center justify-between px-6 py-3 border-b border-white/10">
+        <div className="flex items-center gap-4">
+          <img src={brasao} alt="Brasão PMBA" className="w-12 h-12 object-contain" />
+          <div>
+            <p className="text-sm font-bold uppercase tracking-widest">Polícia Militar da Bahia</p>
+            <p className="text-xs text-gray-400">Corregedoria — COPPM/BA</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-sm font-bold uppercase tracking-widest">Sistema de Ocorrências</p>
+          <p className="text-xs text-gray-400">Registro de Autos de Resistência</p>
+        </div>
+      </div>
+      <div className="flex items-center justify-end gap-6 px-6 py-2 text-xs text-gray-400">
+        <span>Sd. Pedro Aruana</span>
+        <span className="bg-white/10 px-2 py-0.5 rounded text-white font-semibold">SD</span>
+        <button className="hover:text-white transition-colors">Sair</button>
       </div>
     </header>
   )

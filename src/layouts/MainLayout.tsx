@@ -10,7 +10,7 @@ const navItems = [
 export function MainLayout() {
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <aside className="w-64 bg-[#0d1b2a] text-white flex flex-col">
+      <aside className="w-64 bg-black text-white flex flex-col">
         <div className="px-6 py-5 border-b border-white/10">
           <p className="text-xs font-semibold text-blue-300 uppercase tracking-widest">COPPM/BA</p>
           <p className="text-sm text-white/70 mt-1">Corregedoria da PM da Bahia</p>
