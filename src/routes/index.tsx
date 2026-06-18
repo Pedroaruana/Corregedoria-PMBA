@@ -3,6 +3,7 @@ import { Login } from '@/pages/Login'
 import { Dashboard } from '@/pages/Dashboard'
 import { Ocorrencias } from '@/pages/Ocorrencias'
 import { NovaOcorrencia } from '@/pages/NovaOcorrencia'
+import { DetalhesOcorrencia } from '@/pages/DetalhesOcorrencia'
 import { MainLayout } from '@/layouts/MainLayout'
 
 export function AppRoutes() {
@@ -15,7 +16,7 @@ export function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/ocorrencias" element={<Ocorrencias />} />
           <Route path="/ocorrencias/nova" element={<NovaOcorrencia />} />
-          <Route path="/ocorrencias/:id" element={<div>Detalhes</div>} />
+          <Route path="/ocorrencias/:id" element={<DetalhesOcorrencia />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
