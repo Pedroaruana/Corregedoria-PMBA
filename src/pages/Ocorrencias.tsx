@@ -123,7 +123,7 @@ export function Ocorrencias() {
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => navigate(`/ocorrencias/${o.protocolo}`)}
+                      onClick={() => navigate(`/ocorrencias/${encodeURIComponent(o.protocolo)}`)}
                       className="text-xs text-gray-400 hover:text-gray-900 transition-colors font-medium"
                     >
                       Ver →

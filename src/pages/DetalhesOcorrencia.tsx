@@ -68,7 +68,7 @@ const statusColors: Record<StatusOcorrencia, string> = {
 export function DetalhesOcorrencia() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const ocorrencia = id ? mockDetalhes[id] : null
+  const ocorrencia = id ? mockDetalhes[decodeURIComponent(id)] : null
 
   if (!ocorrencia) {
     return (
