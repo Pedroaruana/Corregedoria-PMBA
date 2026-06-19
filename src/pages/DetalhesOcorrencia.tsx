@@ -185,7 +185,10 @@ export function DetalhesOcorrencia() {
             <p className="text-sm font-semibold text-yellow-800">Assinatura pendente</p>
             <p className="text-xs text-yellow-600 mt-0.5">Este auto aguarda a assinatura dos policiais envolvidos.</p>
           </div>
-          <button className="bg-gray-900 text-white px-5 py-2 rounded-md text-sm font-semibold hover:bg-black transition-colors">
+          <button
+            onClick={() => navigate(`/ocorrencias/${encodeURIComponent(ocorrencia.protocolo)}/assinar`)}
+            className="bg-gray-900 text-white px-5 py-2 rounded-md text-sm font-semibold hover:bg-black transition-colors"
+          >
             Assinar Termo
           </button>
         </div>
