@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import brasao from '@/assets/PMBA.png'
+import { gerarPDFAutoResistencia } from '@/utils/gerarPDF'
 
 const mockTermo = {
   protocolo: 'AR-2026/0342',
@@ -72,12 +73,26 @@ export function AssinarTermo() {
               <span className="font-semibold text-green-700">Concluída</span>
             </div>
           </div>
-          <button
-            onClick={() => navigate('/ocorrencias')}
-            className="bg-gray-900 text-white px-6 py-2 rounded-md text-sm font-semibold hover:bg-black transition-colors"
-          >
-            Voltar para ocorrências
-          </button>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => gerarPDFAutoResistencia({
+                ...mockTermo,
+                armaApreendida: true,
+                feridos: 0,
+                assinadoPor: matricula,
+                dataAssinatura: horaAssinatura,
+              })}
+              className="border border-gray-300 text-gray-700 px-6 py-2 rounded-md text-sm font-semibold hover:bg-gray-50 transition-colors"
+            >
+              Baixar PDF
+            </button>
+            <button
+              onClick={() => navigate('/ocorrencias')}
+              className="bg-gray-900 text-white px-6 py-2 rounded-md text-sm font-semibold hover:bg-black transition-colors"
+            >
+              Voltar para ocorrências
+            </button>
+          </div>
         </div>
       </div>
     )
