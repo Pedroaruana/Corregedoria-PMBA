@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Ocorrencia {
+  id             String    @id @default(cuid())
+  protocolo      String    @unique
+  dataFato       String
+  horaFato       String
+  bpm            String
+  municipio      String
+  bairro         String
+  logradouro     String
+  narrativa      String
+  vitimasFatais  Int
+  feridos        Int
+  status         String    @default("Registrada")
+  tipoArma       String
+  calibre        String
+  disparos       Int
+  armaApreendida Boolean
+  policiais      Json
+  assinadoPor    String?
+  assinadoEm     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
