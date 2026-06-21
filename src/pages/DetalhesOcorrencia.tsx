@@ -1,76 +1,50 @@
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { api } from '@/services/api'
+import type { OcorrenciaAPI } from '@/services/api'
 
-type StatusOcorrencia = 'Registrada' | 'Em análise' | 'Aguardando assinatura' | 'Concluída'
+const STATUS_STEPS = ['Registrada', 'Em Análise', 'Aguardando Laudo IML', 'Aguardando Assinatura', 'Concluída']
 
-interface TimelineItem {
-  status: StatusOcorrencia
-  data: string
-  responsavel: string
-  observacao?: string
-}
-
-interface DetalhesMock {
-  protocolo: string
-  status: StatusOcorrencia
-  dataFato: string
-  horaFato: string
-  bpm: string
-  local: string
-  policiais: { nome: string; patente: string; matricula: string }[]
-  arma: string
-  calibre: string
-  disparos: number
-  armaApreendida: boolean
-  vitimasFatais: number
-  feridos: number
-  narrativa: string
-  timeline: TimelineItem[]
-}
-
-const mockDetalhes: Record<string, DetalhesMock> = {
-  'AR-2026/0342': {
-    protocolo: 'AR-2026/0342',
-    status: 'Aguardando assinatura',
-    dataFato: '17/06/2026',
-    horaFato: '22:15',
-    bpm: '12º BPM',
-    local: 'Rua das Pedras, s/n — Sussuarana, Salvador/BA',
-    policiais: [
-      { nome: 'João Victor Santos', patente: 'Sd', matricula: '098432' },
-      { nome: 'Carlos Eduardo Lima', patente: 'Sd', matricula: '101567' },
-    ],
-    arma: 'Pistola',
-    calibre: '9mm',
-    disparos: 4,
-    armaApreendida: true,
-    vitimasFatais: 1,
-    feridos: 0,
-    narrativa: 'Guarnição realizava patrulhamento ostensivo na Rua das Pedras quando avistou indivíduo em atitude suspeita. Ao ser abordado, o suspeito efetuou disparos contra os policiais, que em legítima defesa revidaram. O indivíduo foi atingido e socorrido pelo SAMU, vindo a óbito no local. Uma pistola calibre .380 com numeração raspada foi apreendida.',
-    timeline: [
-      { status: 'Registrada', data: '17/06/2026 às 23:41', responsavel: 'Sd. Santos — 12º BPM', observacao: 'Auto de Resistência registrado no sistema.' },
-      { status: 'Em análise', data: '18/06/2026 às 08:15', responsavel: 'COPPM/BA — Seção de Análise', observacao: 'Documentação encaminhada para análise da corregedoria.' },
-      { status: 'Aguardando assinatura', data: '18/06/2026 às 10:30', responsavel: 'COPPM/BA', observacao: 'Pendente assinatura dos policiais envolvidos.' },
-    ],
-  },
-}
-
-const STATUS_STEPS: StatusOcorrencia[] = [
-  'Registrada', 'Em análise', 'Aguardando assinatura', 'Concluída',
-]
-
-const statusColors: Record<StatusOcorrencia, string> = {
+const statusColors: Record<string, string> = {
   'Registrada': 'bg-gray-100 text-gray-600',
-  'Em análise': 'bg-blue-100 text-blue-700',
-  'Aguardando assinatura': 'bg-yellow-100 text-yellow-700',
+  'Em Análise': 'bg-blue-100 text-blue-700',
+  'Aguardando Laudo IML': 'bg-orange-100 text-orange-700',
+  'Aguardando Assinatura': 'bg-yellow-100 text-yellow-700',
   'Concluída': 'bg-green-100 text-green-700',
+}
+
+function formatarData(data: string) {
+  if (!data) return ''
+  const [ano, mes, dia] = data.split('-')
+  return `${dia}/${mes}/${ano}`
+}
+
+function formatarDateTime(iso: string) {
+  return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
 }
 
 export function DetalhesOcorrencia() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const ocorrencia = id ? mockDetalhes[decodeURIComponent(id)] : null
+  const [ocorrencia, setOcorrencia] = useState<OcorrenciaAPI | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
 
-  if (!ocorrencia) {
+  useEffect(() => {
+    if (!id) return
+    api.getOcorrencia(decodeURIComponent(id))
+      .then(setOcorrencia)
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="text-center py-20 text-gray-400 text-sm">Carregando...</div>
+    )
+  }
+
+  if (notFound || !ocorrencia) {
     return (
       <div className="text-center py-20 text-gray-400">
         <p className="text-lg font-semibold">Ocorrência não encontrada</p>
@@ -82,19 +56,21 @@ export function DetalhesOcorrencia() {
   }
 
   const statusAtualIndex = STATUS_STEPS.indexOf(ocorrencia.status)
+  const local = `${ocorrencia.logradouro} — ${ocorrencia.bairro}, ${ocorrencia.municipio}/BA`
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl">
-      {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <button onClick={() => navigate('/ocorrencias')} className="text-sm text-gray-400 hover:text-gray-700 mb-2 flex items-center gap-1">
             ← Voltar
           </button>
           <h1 className="text-xl font-bold text-gray-900">{ocorrencia.protocolo}</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{ocorrencia.dataFato} às {ocorrencia.horaFato} — {ocorrencia.bpm}</p>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {formatarData(ocorrencia.dataFato)} às {ocorrencia.horaFato} — {ocorrencia.bpm}
+          </p>
         </div>
-        <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${statusColors[ocorrencia.status]}`}>
+        <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${statusColors[ocorrencia.status] ?? 'bg-gray-100 text-gray-600'}`}>
           {ocorrencia.status}
         </span>
       </div>
@@ -124,18 +100,24 @@ export function DetalhesOcorrencia() {
           })}
         </div>
 
-        {/* Log da timeline */}
-        <div className="mt-6 flex flex-col gap-3 border-t border-gray-100 pt-4">
-          {ocorrencia.timeline.map((item, i) => (
-            <div key={i} className="flex gap-3 text-sm">
-              <div className="text-gray-400 whitespace-nowrap text-xs pt-0.5">{item.data}</div>
+        {/* Log simplificado baseado no status */}
+        <div className="mt-6 flex flex-col gap-3 border-t border-gray-100 pt-4 text-sm">
+          <div className="flex gap-3">
+            <div className="text-gray-400 whitespace-nowrap text-xs pt-0.5">{formatarDateTime(ocorrencia.createdAt)}</div>
+            <div>
+              <span className="text-xs font-semibold px-1.5 py-0.5 rounded mr-2 bg-gray-100 text-gray-600">Registrada</span>
+              <span className="text-gray-600">Auto de Resistência registrado no sistema.</span>
+            </div>
+          </div>
+          {ocorrencia.status === 'Concluída' && ocorrencia.assinadoEm && (
+            <div className="flex gap-3">
+              <div className="text-gray-400 whitespace-nowrap text-xs pt-0.5">{formatarDateTime(ocorrencia.assinadoEm)}</div>
               <div>
-                <span className={`text-xs font-semibold px-1.5 py-0.5 rounded mr-2 ${statusColors[item.status]}`}>{item.status}</span>
-                <span className="text-gray-600">{item.responsavel}</span>
-                {item.observacao && <p className="text-xs text-gray-400 mt-0.5">{item.observacao}</p>}
+                <span className="text-xs font-semibold px-1.5 py-0.5 rounded mr-2 bg-green-100 text-green-700">Concluída</span>
+                <span className="text-gray-600">Termo assinado digitalmente — Mat. {ocorrencia.assinadoPor}</span>
               </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
@@ -144,8 +126,8 @@ export function DetalhesOcorrencia() {
         <div className="bg-white rounded-lg border border-gray-200 p-5">
           <p className="text-sm font-semibold text-gray-800 mb-4">Dados da ocorrência</p>
           <dl className="flex flex-col gap-2 text-sm">
-            <div><dt className="text-xs text-gray-400 uppercase">Local</dt><dd className="text-gray-700">{ocorrencia.local}</dd></div>
-            <div><dt className="text-xs text-gray-400 uppercase">Arma utilizada</dt><dd className="text-gray-700">{ocorrencia.arma} — {ocorrencia.calibre}</dd></div>
+            <div><dt className="text-xs text-gray-400 uppercase">Local</dt><dd className="text-gray-700">{local}</dd></div>
+            <div><dt className="text-xs text-gray-400 uppercase">Arma utilizada</dt><dd className="text-gray-700">{ocorrencia.tipoArma} — {ocorrencia.calibre}</dd></div>
             <div><dt className="text-xs text-gray-400 uppercase">Disparos efetuados</dt><dd className="text-gray-700">{ocorrencia.disparos}</dd></div>
             <div><dt className="text-xs text-gray-400 uppercase">Arma apreendida</dt><dd className="text-gray-700">{ocorrencia.armaApreendida ? 'Sim' : 'Não'}</dd></div>
             <div><dt className="text-xs text-gray-400 uppercase">Vítimas fatais</dt><dd className="font-semibold text-gray-900">{ocorrencia.vitimasFatais}</dd></div>
@@ -178,8 +160,8 @@ export function DetalhesOcorrencia() {
         <p className="text-sm text-gray-600 leading-relaxed">{ocorrencia.narrativa}</p>
       </div>
 
-      {/* Assinatura */}
-      {ocorrencia.status === 'Aguardando assinatura' && (
+      {/* Assinatura pendente */}
+      {ocorrencia.status === 'Aguardando Assinatura' && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-5 flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold text-yellow-800">Assinatura pendente</p>
