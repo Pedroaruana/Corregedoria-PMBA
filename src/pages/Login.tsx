@@ -1,6 +1,34 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import brasao from '@/assets/PMBA.png'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function Login() {
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const [matricula, setMatricula] = useState('')
+  const [senha, setSenha] = useState('')
+  const [erro, setErro] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!matricula || !senha) {
+      setErro('Preencha a matrícula e a senha.')
+      return
+    }
+    setErro('')
+    setLoading(true)
+    try {
+      await login(matricula, senha)
+      navigate('/dashboard')
+    } catch {
+      setErro('Erro ao conectar ao servidor. Tente novamente.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center relative overflow-hidden">
       <img
@@ -18,7 +46,7 @@ export function Login() {
           <p className="text-xs text-gray-500 mt-1">Corregedoria — COPPM/BA</p>
         </div>
 
-        <form className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Matrícula
@@ -26,6 +54,8 @@ export function Login() {
             <input
               type="text"
               placeholder="Ex: 123456"
+              value={matricula}
+              onChange={e => setMatricula(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
             />
           </div>
@@ -36,16 +66,24 @@ export function Login() {
             <input
               type="password"
               placeholder="••••••••"
+              value={senha}
+              onChange={e => setSenha(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
             />
           </div>
+          {erro && <p className="text-xs text-red-600">{erro}</p>}
           <button
             type="submit"
-            className="w-full bg-gray-900 text-white py-2 rounded-md text-sm font-semibold hover:bg-black transition-colors mt-2"
+            disabled={loading}
+            className="w-full bg-gray-900 text-white py-2 rounded-md text-sm font-semibold hover:bg-black transition-colors mt-2 disabled:opacity-60"
           >
-            Entrar
+            {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+
+        <p className="text-xs text-gray-400 text-center mt-6">
+          Qualquer matrícula e senha são aceitos para acesso ao sistema.
+        </p>
       </div>
     </div>
   )
