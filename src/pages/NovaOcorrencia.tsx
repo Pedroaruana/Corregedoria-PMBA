@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { OcorrenciaData, Patente, TipoArma, Calibre } from '@/types/ocorrencia'
 import { gerarProtocolo } from '@/utils/protocolo'
+import { api } from '@/services/api'
 
 const PATENTES: Patente[] = [
   'Sd', 'Cb', '3º Sgt', '2º Sgt', '1º Sgt', 'Sub Ten',
@@ -55,9 +57,45 @@ const labelClass = 'block text-sm font-medium text-gray-700 mb-1'
 const selectClass = inputClass + ' bg-white'
 
 export function NovaOcorrencia() {
+  const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [data, setData] = useState<OcorrenciaData>(initialData)
   const [submitted, setSubmitted] = useState(false)
+  const [enviando, setEnviando] = useState(false)
+
+  async function handleRegistrar() {
+    setEnviando(true)
+    try {
+      await api.criarOcorrencia({
+        protocolo: data.dadosGerais.protocolo,
+        dataFato: data.dadosGerais.dataFato,
+        horaFato: data.dadosGerais.horaFato,
+        bpm: data.dadosGerais.bpm,
+        municipio: data.dadosGerais.municipio,
+        bairro: data.dadosGerais.bairro,
+        logradouro: data.dadosGerais.logradouro,
+        narrativa: data.dadosGerais.narrativa,
+        vitimasFatais: Number(data.dadosGerais.vitimasFatais),
+        feridos: Number(data.dadosGerais.feridos),
+        tipoArma: data.armamento.tipoArma,
+        calibre: data.armamento.calibre,
+        disparos: Number(data.armamento.disparos),
+        armaApreendida: data.armamento.armaApreendida,
+        policiais: data.policiais.map(p => ({
+          nome: p.nome,
+          patente: p.patente,
+          matricula: p.matricula,
+          bpm: data.dadosGerais.bpm,
+        })),
+        status: 'Aguardando Assinatura',
+      })
+      setSubmitted(true)
+    } catch {
+      alert('Erro ao registrar. Verifique se o servidor está rodando.')
+    } finally {
+      setEnviando(false)
+    }
+  }
 
   function updateDadosGerais(field: string, value: string) {
     setData(prev => ({ ...prev, dadosGerais: { ...prev.dadosGerais, [field]: value } }))
@@ -98,12 +136,20 @@ export function NovaOcorrencia() {
         <h2 className="text-xl font-bold text-gray-900 mb-2">Ocorrência Registrada</h2>
         <p className="text-gray-500 mb-1">Protocolo: <span className="font-bold text-gray-900">{data.dadosGerais.protocolo}</span></p>
         <p className="text-sm text-gray-400 mb-6">O Auto de Resistência foi registrado e aguarda assinatura dos envolvidos.</p>
-        <button
-          onClick={() => { setData({ ...initialData, dadosGerais: { ...initialData.dadosGerais, protocolo: gerarProtocolo() } }); setStep(0); setSubmitted(false) }}
-          className="bg-gray-900 text-white px-6 py-2 rounded-md text-sm font-semibold hover:bg-black transition-colors"
-        >
-          Nova Ocorrência
-        </button>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={() => navigate('/ocorrencias')}
+            className="border border-gray-300 text-gray-700 px-6 py-2 rounded-md text-sm font-semibold hover:bg-gray-50 transition-colors"
+          >
+            Ver Ocorrências
+          </button>
+          <button
+            onClick={() => { setData({ ...initialData, dadosGerais: { ...initialData.dadosGerais, protocolo: gerarProtocolo() } }); setStep(0); setSubmitted(false) }}
+            className="bg-gray-900 text-white px-6 py-2 rounded-md text-sm font-semibold hover:bg-black transition-colors"
+          >
+            Nova Ocorrência
+          </button>
+        </div>
       </div>
     )
   }
@@ -356,9 +402,11 @@ export function NovaOcorrencia() {
               Próximo
             </button>
           ) : (
-            <button onClick={() => setSubmitted(true)}
-              className="px-6 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-black transition-colors font-semibold">
-              Registrar Ocorrência
+            <button
+              disabled={enviando}
+              onClick={handleRegistrar}
+              className="px-6 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-black transition-colors font-semibold disabled:opacity-60">
+              {enviando ? 'Registrando...' : 'Registrar Ocorrência'}
             </button>
           )}
         </div>

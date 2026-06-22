@@ -1,52 +1,70 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import brasao from '@/assets/PMBA.png'
 import { gerarPDFAutoResistencia } from '@/utils/gerarPDF'
+import { api } from '@/services/api'
+import type { OcorrenciaAPI } from '@/services/api'
+import { useAuth } from '@/contexts/AuthContext'
 
-const mockTermo = {
-  protocolo: 'AR-2026/0342',
-  dataFato: '17/06/2026',
-  horaFato: '22:15',
-  bpm: '12º BPM',
-  local: 'Rua das Pedras, s/n — Sussuarana, Salvador/BA',
-  policiais: [
-    { nome: 'João Victor Santos', patente: 'Sd', matricula: '098432' },
-    { nome: 'Carlos Eduardo Lima', patente: 'Sd', matricula: '101567' },
-  ],
-  arma: 'Pistola',
-  calibre: '9mm',
-  disparos: 4,
-  vitimasFatais: 1,
-  narrativa: 'Guarnição realizava patrulhamento ostensivo na Rua das Pedras quando avistou indivíduo em atitude suspeita. Ao ser abordado, o suspeito efetuou disparos contra os policiais, que em legítima defesa revidaram. O indivíduo foi atingido e socorrido pelo SAMU, vindo a óbito no local. Uma pistola calibre .380 com numeração raspada foi apreendida.',
+function formatarData(data: string) {
+  if (!data) return ''
+  const [ano, mes, dia] = data.split('-')
+  return `${dia}/${mes}/${ano}`
 }
 
 export function AssinarTermo() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [matricula, setMatricula] = useState('')
+  const { user } = useAuth()
+  const [ocorrencia, setOcorrencia] = useState<OcorrenciaAPI | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [matricula, setMatricula] = useState(user?.matricula ?? '')
   const [senha, setSenha] = useState('')
   const [assinado, setAssinado] = useState(false)
+  const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState('')
-  const [horaAssinatura] = useState(() => {
-    const now = new Date()
-    return now.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
-  })
+  const [horaAssinatura] = useState(() =>
+    new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+  )
 
-  const protocolo = id ? decodeURIComponent(id) : mockTermo.protocolo
+  const protocolo = id ? decodeURIComponent(id) : ''
 
-  function handleAssinar(e: React.FormEvent) {
+  useEffect(() => {
+    if (!protocolo) return
+    api.getOcorrencia(protocolo)
+      .then(setOcorrencia)
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [protocolo])
+
+  async function handleAssinar(e: React.FormEvent) {
     e.preventDefault()
     if (!matricula || !senha) {
       setErro('Preencha a matrícula e a senha para assinar.')
       return
     }
-    if (senha.length < 4) {
-      setErro('Senha inválida.')
-      return
-    }
     setErro('')
-    setAssinado(true)
+    setEnviando(true)
+    try {
+      await api.assinarTermo(protocolo, matricula)
+      setAssinado(true)
+    } catch {
+      setErro('Erro ao assinar. Tente novamente.')
+    } finally {
+      setEnviando(false)
+    }
   }
+
+  if (loading) {
+    return <div className="text-center py-20 text-gray-400 text-sm">Carregando...</div>
+  }
+
+  if (!ocorrencia) {
+    return <div className="text-center py-20 text-gray-400 text-sm">Ocorrência não encontrada.</div>
+  }
+
+  const local = `${ocorrencia.logradouro} — ${ocorrencia.bairro}, ${ocorrencia.municipio}/BA`
+  const { policiais } = ocorrencia
 
   if (assinado) {
     return (
@@ -76,9 +94,19 @@ export function AssinarTermo() {
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => gerarPDFAutoResistencia({
-                ...mockTermo,
-                armaApreendida: true,
-                feridos: 0,
+                protocolo,
+                dataFato: formatarData(ocorrencia.dataFato),
+                horaFato: ocorrencia.horaFato,
+                bpm: ocorrencia.bpm,
+                local,
+                policiais,
+                arma: ocorrencia.tipoArma,
+                calibre: ocorrencia.calibre,
+                disparos: ocorrencia.disparos,
+                vitimasFatais: ocorrencia.vitimasFatais,
+                feridos: ocorrencia.feridos,
+                armaApreendida: ocorrencia.armaApreendida,
+                narrativa: ocorrencia.narrativa,
                 assinadoPor: matricula,
                 dataAssinatura: horaAssinatura,
               })}
@@ -110,7 +138,6 @@ export function AssinarTermo() {
 
       {/* Documento oficial */}
       <div className="bg-white rounded-lg border border-gray-200 p-8">
-        {/* Cabeçalho do documento */}
         <div className="flex items-center gap-4 border-b-2 border-gray-900 pb-4 mb-6">
           <img src={brasao} alt="Brasão PMBA" className="w-14 h-14 object-contain" />
           <div>
@@ -125,35 +152,33 @@ export function AssinarTermo() {
           </div>
         </div>
 
-        {/* Corpo do documento */}
         <div className="text-sm text-gray-700 leading-relaxed flex flex-col gap-4">
           <div className="grid grid-cols-3 gap-4 text-xs">
-            <div><p className="text-gray-400 uppercase font-semibold mb-1">Data do fato</p><p>{mockTermo.dataFato}</p></div>
-            <div><p className="text-gray-400 uppercase font-semibold mb-1">Hora</p><p>{mockTermo.horaFato}</p></div>
-            <div><p className="text-gray-400 uppercase font-semibold mb-1">BPM</p><p>{mockTermo.bpm}</p></div>
+            <div><p className="text-gray-400 uppercase font-semibold mb-1">Data do fato</p><p>{formatarData(ocorrencia.dataFato)}</p></div>
+            <div><p className="text-gray-400 uppercase font-semibold mb-1">Hora</p><p>{ocorrencia.horaFato}</p></div>
+            <div><p className="text-gray-400 uppercase font-semibold mb-1">BPM</p><p>{ocorrencia.bpm}</p></div>
           </div>
           <div className="text-xs">
             <p className="text-gray-400 uppercase font-semibold mb-1">Local da ocorrência</p>
-            <p>{mockTermo.local}</p>
+            <p>{local}</p>
           </div>
           <div className="text-xs">
             <p className="text-gray-400 uppercase font-semibold mb-1">Policiais envolvidos</p>
-            {mockTermo.policiais.map((p, i) => (
+            {policiais.map((p, i) => (
               <p key={i}>{p.patente} {p.nome} — Mat. {p.matricula}</p>
             ))}
           </div>
           <div className="grid grid-cols-3 gap-4 text-xs">
-            <div><p className="text-gray-400 uppercase font-semibold mb-1">Arma utilizada</p><p>{mockTermo.arma} — {mockTermo.calibre}</p></div>
-            <div><p className="text-gray-400 uppercase font-semibold mb-1">Disparos efetuados</p><p>{mockTermo.disparos}</p></div>
-            <div><p className="text-gray-400 uppercase font-semibold mb-1">Vítimas fatais</p><p>{mockTermo.vitimasFatais}</p></div>
+            <div><p className="text-gray-400 uppercase font-semibold mb-1">Arma utilizada</p><p>{ocorrencia.tipoArma} — {ocorrencia.calibre}</p></div>
+            <div><p className="text-gray-400 uppercase font-semibold mb-1">Disparos efetuados</p><p>{ocorrencia.disparos}</p></div>
+            <div><p className="text-gray-400 uppercase font-semibold mb-1">Vítimas fatais</p><p>{ocorrencia.vitimasFatais}</p></div>
           </div>
           <div className="text-xs">
             <p className="text-gray-400 uppercase font-semibold mb-1">Narrativa</p>
-            <p className="leading-relaxed">{mockTermo.narrativa}</p>
+            <p className="leading-relaxed">{ocorrencia.narrativa}</p>
           </div>
         </div>
 
-        {/* Aviso legal */}
         <div className="mt-6 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
           Ao assinar este termo, o policial declara que as informações prestadas são verídicas e assume responsabilidade legal pelo conteúdo deste Auto de Resistência, conforme Art. 299 do Código Penal Brasileiro.
         </div>
@@ -188,9 +213,10 @@ export function AssinarTermo() {
           {erro && <p className="text-xs text-red-600">{erro}</p>}
           <button
             type="submit"
-            className="w-full bg-gray-900 text-white py-2.5 rounded-md text-sm font-semibold hover:bg-black transition-colors"
+            disabled={enviando}
+            className="w-full bg-gray-900 text-white py-2.5 rounded-md text-sm font-semibold hover:bg-black transition-colors disabled:opacity-60"
           >
-            Assinar Termo Digitalmente
+            {enviando ? 'Assinando...' : 'Assinar Termo Digitalmente'}
           </button>
         </form>
       </div>
