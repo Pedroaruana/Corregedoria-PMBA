@@ -1,22 +1,9 @@
+import { useEffect, useState } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
-
-const statsCards = [
-  { label: 'Autos de Resistência', value: '7', sub: 'registrados este mês', color: 'border-l-gray-900' },
-  { label: 'Aguardando assinatura', value: '3', sub: 'pendentes de conclusão', color: 'border-l-yellow-500' },
-  { label: 'Laudos Cellebrite', value: '2', sub: 'pendentes de análise', color: 'border-l-blue-600' },
-  { label: 'Fila GrayKey', value: '1', sub: 'dispositivo em extração', color: 'border-l-red-500' },
-]
-
-const grafico = [
-  { mes: 'Jan', ocorrencias: 4 },
-  { mes: 'Fev', ocorrencias: 6 },
-  { mes: 'Mar', ocorrencias: 3 },
-  { mes: 'Abr', ocorrencias: 8 },
-  { mes: 'Mai', ocorrencias: 5 },
-  { mes: 'Jun', ocorrencias: 7 },
-]
+import { api } from '@/services/api'
+import type { DashboardStats } from '@/services/api'
 
 type FeedTipo = 'cellebrite' | 'graykey' | 'assinatura' | 'laudo' | 'registro'
 
@@ -82,6 +69,31 @@ const feedBadge: Record<FeedTipo, { label: string; className: string }> = {
 }
 
 export function Dashboard() {
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+
+  useEffect(() => {
+    api.getStats().then(setStats).catch(console.error)
+  }, [])
+
+  const total = stats?.total ?? '—'
+  const aguardando = stats?.porStatus['Aguardando Assinatura'] ?? '—'
+  const porMes = stats?.porMes ?? []
+
+  const statusItems = stats ? [
+    { label: 'Concluídas', value: stats.porStatus['Concluída'] ?? 0, color: 'bg-gray-900' },
+    { label: 'Em análise', value: stats.porStatus['Em Análise'] ?? 0, color: 'bg-blue-500' },
+    { label: 'Ag. assinatura', value: stats.porStatus['Aguardando Assinatura'] ?? 0, color: 'bg-yellow-500' },
+  ] : []
+
+  const totalStatus = statusItems.reduce((acc, i) => acc + i.value, 0) || 1
+
+  const statsCards = [
+    { label: 'Autos de Resistência', value: String(total), sub: 'registrados no sistema', color: 'border-l-gray-900' },
+    { label: 'Aguardando assinatura', value: String(aguardando), sub: 'pendentes de conclusão', color: 'border-l-yellow-500' },
+    { label: 'Laudos Cellebrite', value: '2', sub: 'pendentes de análise', color: 'border-l-blue-600' },
+    { label: 'Fila GrayKey', value: '1', sub: 'dispositivo em extração', color: 'border-l-red-500' },
+  ]
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -105,10 +117,10 @@ export function Dashboard() {
         <div className="col-span-2 bg-white rounded-lg border border-gray-200 p-5">
           <p className="text-sm font-semibold text-gray-800 mb-4">Ocorrências por mês — 2026</p>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={grafico} barSize={32}>
+            <BarChart data={porMes} barSize={32}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="mes" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip
                 contentStyle={{ fontSize: 12, borderRadius: 6, border: '1px solid #e5e7eb' }}
                 cursor={{ fill: '#f9fafb' }}
@@ -122,24 +134,24 @@ export function Dashboard() {
         <div className="bg-white rounded-lg border border-gray-200 p-5">
           <p className="text-sm font-semibold text-gray-800 mb-4">Status das ocorrências</p>
           <div className="flex flex-col gap-3">
-            {[
-              { label: 'Concluídas', value: 12, total: 19, color: 'bg-gray-900' },
-              { label: 'Em análise', value: 4, total: 19, color: 'bg-blue-500' },
-              { label: 'Ag. assinatura', value: 3, total: 19, color: 'bg-yellow-500' },
-            ].map((item) => (
-              <div key={item.label}>
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>{item.label}</span>
-                  <span className="font-semibold text-gray-700">{item.value}</span>
+            {stats === null ? (
+              <p className="text-xs text-gray-400">Carregando...</p>
+            ) : (
+              statusItems.map((item) => (
+                <div key={item.label}>
+                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>{item.label}</span>
+                    <span className="font-semibold text-gray-700">{item.value}</span>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${item.color} rounded-full`}
+                      style={{ width: `${(item.value / totalStatus) * 100}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${item.color} rounded-full`}
-                    style={{ width: `${(item.value / item.total) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

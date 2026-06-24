@@ -30,6 +30,8 @@ export const api = {
 
   getOcorrencias: () => request<OcorrenciaAPI[]>('/ocorrencias'),
 
+  getStats: () => request<DashboardStats>('/ocorrencias/stats'),
+
   getOcorrencia: (protocolo: string) =>
     request<OcorrenciaAPI>(`/ocorrencias/${encodeURIComponent(protocolo)}`),
 
@@ -44,6 +46,13 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ matricula }),
     }),
+}
+
+export interface DashboardStats {
+  total: number
+  porStatus: Record<string, number>
+  porMes: Array<{ mes: string; ocorrencias: number }>
+  recentes: Array<{ protocolo: string; status: string; createdAt: string }>
 }
 
 export interface OcorrenciaAPI {

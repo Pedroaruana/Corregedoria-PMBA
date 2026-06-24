@@ -18,6 +18,41 @@ router.get('/', async (_req, res) => {
   }
 })
 
+router.get('/stats', async (_req, res) => {
+  try {
+    const todas = await prisma.ocorrencia.findMany({
+      select: { status: true, createdAt: true, protocolo: true, bpm: true, policiais: true },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    const total = todas.length
+    const porStatus: Record<string, number> = {}
+    todas.forEach(o => {
+      porStatus[o.status] = (porStatus[o.status] ?? 0) + 1
+    })
+
+    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    const anoAtual = new Date().getFullYear()
+    const porMes = meses.map((mes, i) => ({
+      mes,
+      ocorrencias: todas.filter(o => {
+        const d = new Date(o.createdAt)
+        return d.getFullYear() === anoAtual && d.getMonth() === i
+      }).length,
+    }))
+
+    const recentes = todas.slice(0, 5).map(o => ({
+      protocolo: o.protocolo,
+      status: o.status,
+      createdAt: o.createdAt,
+    }))
+
+    res.json({ total, porStatus, porMes, recentes })
+  } catch {
+    res.status(500).json({ error: 'Erro ao buscar estatísticas' })
+  }
+})
+
 router.get('/:id', async (req, res) => {
   try {
     const ocorrencia = await prisma.ocorrencia.findUnique({
