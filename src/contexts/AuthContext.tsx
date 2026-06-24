@@ -9,6 +9,7 @@ interface AuthUser {
 
 interface AuthContextValue {
   user: AuthUser | null
+  loading: boolean
   login: (matricula: string, senha: string) => Promise<void>
   logout: () => void
 }
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     try {
@@ -25,6 +27,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       localStorage.removeItem('coppm_user')
       localStorage.removeItem('coppm_token')
+    } finally {
+      setLoading(false)
     }
   }, [])
 
@@ -42,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   )
