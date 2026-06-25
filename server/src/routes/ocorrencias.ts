@@ -70,7 +70,39 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const ocorrencia = await prisma.ocorrencia.create({ data: req.body })
+    const {
+      protocolo, dataFato, horaFato, bpm, municipio, bairro, logradouro,
+      narrativa, vitimasFatais, feridos, tipoArma, calibre, disparos,
+      armaApreendida, policiais,
+    } = req.body
+
+    const campos = { protocolo, dataFato, horaFato, bpm, municipio, bairro, logradouro, narrativa, tipoArma, calibre }
+    const faltando = Object.entries(campos).filter(([, v]) => !v).map(([k]) => k)
+    if (faltando.length > 0) {
+      res.status(400).json({ error: `Campos obrigatórios ausentes: ${faltando.join(', ')}` })
+      return
+    }
+
+    const ocorrencia = await prisma.ocorrencia.create({
+      data: {
+        protocolo,
+        dataFato,
+        horaFato,
+        bpm,
+        municipio,
+        bairro,
+        logradouro,
+        narrativa,
+        vitimasFatais: Number(vitimasFatais) || 0,
+        feridos: Number(feridos) || 0,
+        tipoArma,
+        calibre,
+        disparos: Number(disparos) || 0,
+        armaApreendida: Boolean(armaApreendida),
+        policiais: policiais ?? [],
+        status: 'Aguardando Assinatura',
+      },
+    })
     res.status(201).json(ocorrencia)
   } catch {
     res.status(500).json({ error: 'Erro ao criar ocorrência' })
