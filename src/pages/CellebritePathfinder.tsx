@@ -96,8 +96,6 @@ export function CellebritePathfinder() {
     }
   }, [])
 
-  const incSelecionado = incidentes.find((i) => i.id === selecionado)
-
   return (
     <div className="flex h-screen bg-[#0d0d1a] text-white overflow-hidden" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
 
