@@ -8,6 +8,8 @@ Sistema fullstack para registro, acompanhamento e assinatura digital de **Autos 
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat&logo=prisma&logoColor=white)
 
+**[Acesse o sistema em produção →](https://corregedoria-pmba.vercel.app)** — login com qualquer matrícula e senha
+
 ---
 
 ## Sobre o projeto
@@ -255,6 +257,16 @@ O Vitest estava tentando rodar os arquivos `.spec.ts` da pasta `e2e/`, que usam 
 ### Endpoint `/stats` sendo tratado como ID
 
 A rota `GET /ocorrencias/:id` no Express capturava a requisição para `/ocorrencias/stats` antes do handler correto, retornando 404 ("ocorrência 'stats' não encontrada"). Corrigido registrando a rota `/stats` antes da rota `/:id` no arquivo de rotas.
+
+---
+
+## Deploy
+
+| Serviço | URL |
+|---|---|
+| Frontend (Vercel) | https://corregedoria-pmba.vercel.app |
+| Backend API (Vercel) | https://corregedoria-pmba-api.vercel.app |
+| Banco de dados | PostgreSQL — Neon (cloud) |
 
 ---
 
