@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
@@ -69,6 +70,7 @@ const feedBadge: Record<FeedTipo, { label: string; className: string }> = {
 }
 
 export function Dashboard() {
+  const navigate = useNavigate()
   const [stats, setStats] = useState<DashboardStats | null>(null)
 
   useEffect(() => {
@@ -108,6 +110,14 @@ export function Dashboard() {
             <p className="text-2xl font-bold text-gray-900">{card.value}</p>
             <p className="text-sm font-semibold text-gray-700 mt-1">{card.label}</p>
             <p className="text-xs text-gray-400 mt-0.5">{card.sub}</p>
+            {card.label === 'Laudos Cellebrite' && (
+              <button
+                onClick={() => navigate('/cellebrite')}
+                className="mt-3 text-[11px] font-medium text-blue-600 hover:text-blue-800 border border-blue-200 hover:border-blue-400 rounded px-2 py-1 transition-colors w-full text-center"
+              >
+                Ver em ambiente virtual →
+              </button>
+            )}
           </div>
         ))}
       </div>

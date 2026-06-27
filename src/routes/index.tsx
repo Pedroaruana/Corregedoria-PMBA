@@ -5,6 +5,7 @@ import { Ocorrencias } from '@/pages/Ocorrencias'
 import { NovaOcorrencia } from '@/pages/NovaOcorrencia'
 import { DetalhesOcorrencia } from '@/pages/DetalhesOcorrencia'
 import { AssinarTermo } from '@/pages/AssinarTermo'
+import { CellebritePathfinder } from '@/pages/CellebritePathfinder'
 import { MainLayout } from '@/layouts/MainLayout'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -33,6 +34,7 @@ export function AppRoutes() {
           <Route path="/ocorrencias/nova" element={<NovaOcorrencia />} />
           <Route path="/ocorrencias/:id" element={<DetalhesOcorrencia />} />
           <Route path="/ocorrencias/:id/assinar" element={<AssinarTermo />} />
+          <Route path="/cellebrite" element={<CellebritePathfinder />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
