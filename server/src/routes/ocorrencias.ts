@@ -21,7 +21,7 @@ router.get('/', async (_req, res) => {
 router.get('/stats', async (_req, res) => {
   try {
     const todas = await prisma.ocorrencia.findMany({
-      select: { status: true, createdAt: true, protocolo: true, bpm: true, policiais: true },
+      select: { status: true, createdAt: true, dataFato: true, protocolo: true, bpm: true, policiais: true },
       orderBy: { createdAt: 'desc' },
     })
 
@@ -36,8 +36,8 @@ router.get('/stats', async (_req, res) => {
     const porMes = meses.map((mes, i) => ({
       mes,
       ocorrencias: todas.filter(o => {
-        const d = new Date(o.createdAt)
-        return d.getFullYear() === anoAtual && d.getMonth() === i
+        const [ano, mes] = o.dataFato.split('-')
+        return Number(ano) === anoAtual && Number(mes) === i + 1
       }).length,
     }))
 
