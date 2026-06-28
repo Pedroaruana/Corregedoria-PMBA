@@ -110,6 +110,14 @@ export function Dashboard() {
             <p className="text-2xl font-bold text-gray-900">{card.value}</p>
             <p className="text-sm font-semibold text-gray-700 mt-1">{card.label}</p>
             <p className="text-xs text-gray-400 mt-0.5">{card.sub}</p>
+            {card.label === 'Fila GrayKey' && (
+              <button
+                onClick={() => navigate('/mindspace')}
+                className="mt-3 text-[11px] font-medium text-purple-600 hover:text-purple-800 border border-purple-200 hover:border-purple-400 rounded px-2 py-1 transition-colors w-full text-center"
+              >
+                Acessar Mindspace →
+              </button>
+            )}
             {card.label === 'Laudos Cellebrite' && (
               <button
                 onClick={() => navigate('/cellebrite')}
