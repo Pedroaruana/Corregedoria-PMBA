@@ -56,6 +56,11 @@ Foi desenvolvido como **projeto de portfólio fullstack**, com o objetivo de dem
 - Cartões com dados de cada policial envolvido (patente, matrícula, BPM)
 - Dados de armamento e informações sobre vítimas
 
+### Ambientes virtuais Cellebrite (simulação)
+- **PATHFINDER — Análise Geoespacial:** página com mapa interativo (Leaflet + tiles dark do CartoDB) exibindo as ocorrências georreferenciadas em Salvador, com bolhas coloridas por relevância (verde → vermelho), tooltip com dados do caso ao passar o mouse e sidebar lateral com lista de incidentes
+- **Mindspace — Análise de Vínculos:** grafo de rede em SVG conectando casos, suspeitos, dispositivos apreendidos, locais e contatos extraídos. Ao passar o mouse em um nó, os vínculos relacionados são destacados e os demais ficam esmaecidos
+- Interface inspirada no software real da Cellebrite, com tema dark, sidebar de navegação e barra de filtros — acessada pelos botões nos cards "Laudos Cellebrite" e "Fila GrayKey" no dashboard
+
 ### Assinatura digital e geração de PDF
 - Página exibe o documento oficial completo formatado como um termo legal, com todos os dados da ocorrência
 - Aviso de responsabilidade legal com referência ao Art. 299 do Código Penal (falsidade ideológica)
@@ -75,6 +80,7 @@ Foi desenvolvido como **projeto de portfólio fullstack**, com o objetivo de dem
 | Tailwind CSS v4 | Estilização utilitária |
 | React Router v6 | Roteamento com rotas protegidas (PrivateRoute) |
 | Recharts | Gráfico de barras no dashboard |
+| Leaflet | Mapa interativo na página PATHFINDER |
 | jsPDF | Geração de documentos PDF no cliente |
 | react-hook-form | Gerenciamento de formulários |
 | Vitest + @testing-library | Testes unitários |
