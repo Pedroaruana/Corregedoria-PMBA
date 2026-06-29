@@ -7,6 +7,12 @@ const navItems = [
   { to: '/ocorrencias/nova', label: 'Nova Ocorrência', icon: '+' },
 ]
 
+const consultasItems = [
+  { to: '/consultas/laudos-iml', label: 'Laudos IML' },
+  { to: '/consultas/armas', label: 'Armas Apreendidas' },
+  { to: '/consultas/objetos', label: 'Objetos Apreendidos' },
+]
+
 export function MainLayout() {
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -31,6 +37,24 @@ export function MainLayout() {
               }
             >
               <span className="text-xs">{item.icon}</span>
+              {item.label}
+            </NavLink>
+          ))}
+
+          <p className="text-[10px] font-semibold text-white/30 uppercase tracking-widest mt-5 mb-1 px-3">Consultas</p>
+          {consultasItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors ${
+                  isActive
+                    ? 'bg-white/10 text-white font-semibold'
+                    : 'text-white/50 hover:bg-white/5 hover:text-white'
+                }`
+              }
+            >
+              <span className="text-xs">›</span>
               {item.label}
             </NavLink>
           ))}
