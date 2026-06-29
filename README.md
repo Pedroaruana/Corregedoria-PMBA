@@ -12,13 +12,50 @@ Sistema fullstack para registro, acompanhamento e assinatura digital de **Autos 
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/1.png" alt="Tela de login" width="400" />
+</p>
+<p align="center"><em>Tela de login — autenticação com matrícula e senha</em></p>
+
+<br>
+
+<p align="center">
+  <img src="docs/2.png" alt="Cellebrite PATHFINDER" width="100%" />
+</p>
+<p align="center"><em>Cellebrite PATHFINDER — análise geoespacial com mapa interativo (Leaflet)</em></p>
+
+<br>
+
+<p align="center">
+  <img src="docs/3.png" alt="Cellebrite Mindspace" width="100%" />
+</p>
+<p align="center"><em>Cellebrite Mindspace — grafo de vínculos entre casos, suspeitos e dispositivos</em></p>
+
+<br>
+
+<p align="center">
+  <img src="docs/4.png" alt="Laudo Pericial IML" width="100%" />
+</p>
+<p align="center"><em>Laudo Pericial — documento oficial do Instituto Médico Legal</em></p>
+
+<br>
+
+<p align="center">
+  <img src="docs/5.webp" alt="Armas Apreendidas" width="100%" />
+</p>
+<p align="center"><em>Armas Apreendidas — inventário com fotos reais vinculadas aos casos</em></p>
+
+---
+
 ## Sobre o projeto
 
-O **Auto de Resistência** é o documento oficial lavrado quando um policial militar emprega força letal em serviço. A Corregedoria da PMBA (COPPM/BA) é o órgão responsável por receber, analisar e arquivar esses registros, garantindo controle institucional, transparência e conformidade legal no uso da força policial.
+Esse sistema simula a plataforma interna da Corregedoria da PM da Bahia (COPPM/BA) pra gerenciar **Autos de Resistência** — que é o documento que a PM lavra quando um policial usa força letal em serviço. A corregedoria recebe, analisa e arquiva esses registros.
 
-Este projeto simula o sistema interno utilizado pelos servidores da corregedoria para gerenciar todo o ciclo de vida de um Auto de Resistência — desde o registro inicial da ocorrência até a assinatura digital do termo e a geração do PDF oficial para arquivamento.
+A ideia foi construir um sistema completo do zero: desde o registro da ocorrência, passando pela análise, até a assinatura digital do termo e geração do PDF pra arquivamento. Inclui também simulações de ferramentas forenses reais como Cellebrite PATHFINDER e Mindspace, páginas de consulta com laudos do IML, armas e objetos apreendidos.
 
-Foi desenvolvido como **projeto de portfólio fullstack**, com o objetivo de demonstrar domínio em desenvolvimento web moderno: SPA com React, API REST com Node.js e Express, banco de dados relacional em nuvem com Prisma ORM e PostgreSQL (Neon), autenticação JWT, geração de documentos PDF e cobertura de testes automatizados com Vitest e Playwright.
+Construí como projeto de portfólio pra mostrar o que sei fazer com React, Node.js, PostgreSQL, Prisma, JWT, testes automatizados e deploy em produção.
 
 ---
 
@@ -60,6 +97,11 @@ Foi desenvolvido como **projeto de portfólio fullstack**, com o objetivo de dem
 - **PATHFINDER — Análise Geoespacial:** página com mapa interativo (Leaflet + tiles dark do CartoDB) exibindo as ocorrências georreferenciadas em Salvador, com bolhas coloridas por relevância (verde → vermelho), tooltip com dados do caso ao passar o mouse e sidebar lateral com lista de incidentes
 - **Mindspace — Análise de Vínculos:** grafo de rede em SVG conectando casos, suspeitos, dispositivos apreendidos, locais e contatos extraídos. Ao passar o mouse em um nó, os vínculos relacionados são destacados e os demais ficam esmaecidos
 - Interface inspirada no software real da Cellebrite, com tema dark, sidebar de navegação e barra de filtros — acessada pelos botões nos cards "Laudos Cellebrite" e "Fila GrayKey" no dashboard
+
+### Consultas
+- **Laudos IML:** tabela com laudos periciais do Instituto Médico Legal. Ao clicar em "Ver laudo", abre documento estilizado como laudo oficial da Polícia Científica da Bahia com cabeçalho institucional, dados da ocorrência, causa mortis e médico legista
+- **Armas Apreendidas:** inventário com fotos reais de armas vinculadas aos Autos de Resistência. Cards com modelo, calibre, número de série, caso vinculado, BPM e status. Busca por texto em tempo real
+- **Objetos Apreendidos:** inventário de celulares, veículos, entorpecentes, munição e dinheiro com fotos reais. Filtro por categoria e badges de status (Em custódia, Liberado, Periciado)
 
 ### Assinatura digital e geração de PDF
 - Página exibe o documento oficial completo formatado como um termo legal, com todos os dados da ocorrência
@@ -105,7 +147,9 @@ O projeto segue uma arquitetura cliente-servidor clássica, com frontend e backe
 ```
 Frontend (React SPA — Vite, porta 5173)
 ├── src/pages/              → Login, Dashboard, Ocorrencias, DetalhesOcorrencia,
-│                              NovaOcorrencia, AssinarTermo
+│                              NovaOcorrencia, AssinarTermo, CellebritePathfinder,
+│                              CelebbriteMindspace, LaudosIML, ArmasApreendidas,
+│                              ObjetosApreendidos
 ├── src/components/         → Header, layout geral
 ├── src/services/api.ts     → Camada de comunicação com a API (fetch + Bearer token)
 ├── src/contexts/           → AuthContext: JWT, localStorage, estado de loading

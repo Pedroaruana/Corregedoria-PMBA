@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { Header } from '@/components/Header'
+import { useAuth } from '@/contexts/AuthContext'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: '▪' },
@@ -14,6 +15,8 @@ const consultasItems = [
 ]
 
 export function MainLayout() {
+  const { logout } = useAuth()
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <aside className="w-64 bg-black text-white flex flex-col">
@@ -60,7 +63,7 @@ export function MainLayout() {
           ))}
         </nav>
         <div className="px-6 py-4 border-t border-white/10">
-          <button className="text-xs text-white/40 hover:text-white transition-colors uppercase tracking-widest">
+          <button onClick={logout} className="text-xs text-white/40 hover:text-white transition-colors uppercase tracking-widest">
             Sair
           </button>
         </div>

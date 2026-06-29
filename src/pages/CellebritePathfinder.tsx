@@ -10,7 +10,7 @@ const incidentes = [
   { id: 'AR-2026/0330', titulo: 'Confronto RONDESP', bairro: 'Cajazeiras', data: '02/06/2026', lat: -12.9155, lng: -38.4333, relevancia: 95, tipo: 'auto' },
   { id: 'AR-2026/0328', titulo: 'Operação CIPE Leste', bairro: 'Tancredo Neves', data: '28/05/2026', lat: -12.9491, lng: -38.4198, relevancia: 71, tipo: 'auto' },
   { id: 'AR-2026/0322', titulo: 'Confronto 40º BPM', bairro: 'Lauro de Freitas', data: '22/05/2026', lat: -12.8997, lng: -38.3312, relevancia: 65, tipo: 'auto' },
-  { id: 'AR-2026/0318', titulo: 'Operação Subúrbio', bairro: 'Periperi', data: '18/05/2026', lat: -12.8712, lng: -38.4991, relevancia: 83, tipo: 'auto' },
+  { id: 'AR-2026/0318', titulo: 'Operação Subúrbio', bairro: 'Periperi', data: '18/05/2026', lat: -12.8712, lng: -38.4680, relevancia: 83, tipo: 'auto' },
 ]
 
 const menuItems = [

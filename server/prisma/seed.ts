@@ -4,8 +4,24 @@ const prisma = new PrismaClient()
 
 const statuses = ['Concluída', 'Em Análise', 'Aguardando Assinatura', 'Registrada', 'Aguardando Laudo IML']
 const bpms = ['18º BPM', 'RONDESP', '1º BPM', 'CIPE Leste', 'BPRv', '12º BPM', '6º BPM', '9º BPM', '40º BPM', 'CIPE Atlântico']
-const municipios = ['Salvador', 'Feira de Santana', 'Camaçari', 'Lauro de Freitas', 'Vitória da Conquista', 'Ilhéus', 'Itabuna', 'Juazeiro']
-const bairros = ['Periperi', 'Campo Limpo', 'Bonfim', 'Monte Gordo', 'Vilas do Atlântico', 'São Caetano', 'Itapuã', 'Sussuarana', 'Cajazeiras', 'Tancredo Neves', 'Pelourinho', 'Brotas']
+const locais = [
+  { bairro: 'Periperi', municipio: 'Salvador' },
+  { bairro: 'Bonfim', municipio: 'Salvador' },
+  { bairro: 'São Caetano', municipio: 'Salvador' },
+  { bairro: 'Itapuã', municipio: 'Salvador' },
+  { bairro: 'Sussuarana', municipio: 'Salvador' },
+  { bairro: 'Cajazeiras', municipio: 'Salvador' },
+  { bairro: 'Tancredo Neves', municipio: 'Salvador' },
+  { bairro: 'Pelourinho', municipio: 'Salvador' },
+  { bairro: 'Brotas', municipio: 'Salvador' },
+  { bairro: 'Campo Limpo', municipio: 'Feira de Santana' },
+  { bairro: 'Monte Gordo', municipio: 'Camaçari' },
+  { bairro: 'Vilas do Atlântico', municipio: 'Lauro de Freitas' },
+  { bairro: 'Centro', municipio: 'Vitória da Conquista' },
+  { bairro: 'Pontal', municipio: 'Ilhéus' },
+  { bairro: 'Centro', municipio: 'Itabuna' },
+  { bairro: 'Country Club', municipio: 'Juazeiro' },
+]
 const armas = [
   { tipo: 'Pistola', calibre: '9mm' },
   { tipo: 'Pistola', calibre: '.40 S&W' },
@@ -46,6 +62,7 @@ for (const { mes, count } of dadosPorMes) {
     const dia = Math.floor(Math.random() * 27) + 1
     const arma = pick(armas)
     const status = pick(statuses)
+    const local = pick(locais)
     const numPoliciais = Math.floor(Math.random() * 2) + 2
     const policiais = Array.from({ length: numPoliciais }, () => ({
       nome: pick(nomes),
@@ -59,8 +76,8 @@ for (const { mes, count } of dadosPorMes) {
       dataFato: `2026-${pad(mes)}-${pad(dia)}`,
       horaFato: `${pad(Math.floor(Math.random() * 24))}:${pad(Math.floor(Math.random() * 60))}`,
       bpm: policiais[0].bpm,
-      municipio: pick(municipios),
-      bairro: pick(bairros),
+      municipio: local.municipio,
+      bairro: local.bairro,
       logradouro: `Rua ${pick(['das Flores', 'do Comércio', 'Nova', 'Central', 'da Paz'])}, ${Math.floor(Math.random() * 900) + 50}`,
       narrativa: pick(narrativas),
       vitimasFatais: Math.random() > 0.2 ? 1 : 0,
